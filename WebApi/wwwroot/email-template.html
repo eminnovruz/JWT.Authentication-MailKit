@@ -1,20 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebApi.Services.Abstract;
-
-namespace WebApi.Controllers;
-
-[Route("api/[controller]")]
-[ApiController]
-public class ApplicationController : ControllerBase
-{
-    private readonly IMailService _mailService;
-
-    string emailBody = @"
-<!DOCTYPE html>
-<html lang=""en"">
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset=""UTF-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Template</title>
     <style>
         body {
@@ -23,6 +11,7 @@ public class ApplicationController : ControllerBase
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
         }
+
         .email-container {
             width: 100%;
             max-width: 600px;
@@ -32,31 +21,37 @@ public class ApplicationController : ControllerBase
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .header {
             background-color: #007bff;
             color: #ffffff;
             padding: 20px;
             text-align: center;
         }
-        .header img {
-            max-width: 150px;
-            height: auto;
-        }
+
+            .header img {
+                max-width: 150px;
+                height: auto;
+            }
+
         .content {
             padding: 20px;
             text-align: left;
         }
-        .content h1 {
-            font-size: 24px;
-            color: #333333;
-            margin-top: 0;
-        }
-        .content p {
-            font-size: 16px;
-            color: #666666;
-            line-height: 1.5;
-            margin: 0 0 20px;
-        }
+
+            .content h1 {
+                font-size: 24px;
+                color: #333333;
+                margin-top: 0;
+            }
+
+            .content p {
+                font-size: 16px;
+                color: #666666;
+                line-height: 1.5;
+                margin: 0 0 20px;
+            }
+
         .button {
             display: inline-block;
             background-color: #007bff;
@@ -68,6 +63,7 @@ public class ApplicationController : ControllerBase
             font-weight: bold;
             margin: 10px 0;
         }
+
         .footer {
             background-color: #f4f4f4;
             padding: 10px;
@@ -75,6 +71,7 @@ public class ApplicationController : ControllerBase
             font-size: 14px;
             color: #999999;
         }
+
         @media only screen and (max-width: 600px) {
             .email-container {
                 width: 100% !important;
@@ -85,42 +82,22 @@ public class ApplicationController : ControllerBase
     </style>
 </head>
 <body>
-    <div class=""email-container"">
-        <div class=""header"">
-            <img src=""https://via.placeholder.com/150x50?text=Logo"" alt=""Company Logo"">
+    <div class="email-container">
+        <div class="header">
+            <img src="https://via.placeholder.com/150x50?text=Logo" alt="Company Logo">
             <h1>Welcome to Our Service!</h1>
         </div>
-        <div class=""content"">
+        <div class="content">
             <h1>Hello [Recipient's Name],</h1>
             <p>Thank you for signing up for our service. We're excited to have you on board and can't wait for you to start exploring all the features we have to offer.</p>
             <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
-            <a href=""#"" class=""button"">Get Started</a>
+            <a href="#" class="button">Get Started</a>
         </div>
-        <div class=""footer"">
+        <div class="footer">
             <p>&copy; 2024 Company Name. All rights reserved.</p>
             <p>1234 Street Name, City, Country</p>
-            <p><a href=""#"" style=""color: #007bff;"">Unsubscribe</a></p>
+            <p><a href="#" style="color: #007bff;">Unsubscribe</a></p>
         </div>
     </div>
 </body>
-</html>";
-
-
-    public ApplicationController(IMailService mailService)
-    {
-        _mailService = mailService;
-    }
-
-    [HttpPost("Register")]
-    public async Task<IActionResult> RegisterAsync()
-    {
-        try
-        {
-            return Ok(await _mailService.SendEmailAsync("softwarecrim@gmail.com", "Welcome to our service!🎉"));
-        }
-        catch (Exception exception)
-        {
-            return BadRequest(exception);
-        }
-    }
-}
+</html>

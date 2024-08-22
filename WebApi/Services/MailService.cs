@@ -9,16 +9,21 @@ namespace WebApi.Services;
 public class MailService : IMailService
 {
     private readonly MailConfiguration _config;
+    private readonly IWebHostEnvironment _env;
 
-    public MailService(IOptions<MailConfiguration> config)
+    public MailService(IOptions<MailConfiguration> config, IWebHostEnvironment env)
     {
         _config = config.Value;
+        _env = env;
     }
 
-    public async Task<bool> SendEmailAsync(string to, string subject, string htmlContent)
+    public async Task<bool> SendEmailAsync(string to, string subject)
     {
-        var emailMessage = CreateEmailMessage(to, subject, htmlContent);
+        var filePath = Path.Combine(_env.WebRootPath, "email-template.html");
+        var htmlContent = await File.ReadAllTextAsync(filePath);
 
+        var emailMessage = CreateEmailMessage(to, subject, htmlContent);
+          
         using var client = new SmtpClient();
         await ConnectAndSendEmailAsync(client, emailMessage);
 
@@ -35,19 +40,11 @@ public class MailService : IMailService
 
         return emailMessage;
     }
-    
+
     private async Task ConnectAndSendEmailAsync(SmtpClient client, MimeMessage emailMessage)
     {
-        try
-        {
-            await client.ConnectAsync(_config.Server, _config.Port, _config.UseSsl);
-            await client.AuthenticateAsync(_config.Username, _config.Password);
-            await client.SendAsync(emailMessage);
-        }
-        finally
-        {
-            await client.DisconnectAsync(true);
-            client.Dispose();
-        }
+        await client.ConnectAsync(_config.Server, _config.Port, _config.UseSsl);
+        await client.AuthenticateAsync(_config.Username, _config.Password);
+        await client.SendAsync(emailMessage);
     }
 }
