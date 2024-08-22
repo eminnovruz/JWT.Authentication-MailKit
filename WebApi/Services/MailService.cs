@@ -1,4 +1,5 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 using WebApi.Services.Abstract;
@@ -9,17 +10,19 @@ public class MailService : IMailService
 {
     private readonly MailConfiguration _config;
 
-    public MailService(MailConfiguration config)
+    public MailService(IOptions<MailConfiguration> config)
     {
-        _config = config;
+        _config = config.Value;
     }
 
-    public async Task SendEmailAsync(string to, string subject, string htmlContent)
+    public async Task<bool> SendEmailAsync(string to, string subject, string htmlContent)
     {
         var emailMessage = CreateEmailMessage(to, subject, htmlContent);
 
         using var client = new SmtpClient();
         await ConnectAndSendEmailAsync(client, emailMessage);
+
+        return true;
     }
 
     private MimeMessage CreateEmailMessage(string to, string subject, string htmlContent)

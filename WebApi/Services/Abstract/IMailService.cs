@@ -1,8 +1,6 @@
-﻿using WebApi.Configuration.Mail;
-
-namespace WebApi.Services.Abstract;
+﻿namespace WebApi.Services.Abstract;
 
 public interface IMailService
 {
-    Task SendEmailAsync(string to, string subject, string htmlContent);
+    Task<bool> SendEmailAsync(string to, string subject, string htmlContent);
 }
