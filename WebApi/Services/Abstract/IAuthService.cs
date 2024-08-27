@@ -1,9 +1,10 @@
 ﻿using WebApi.DataTransferObject.Request;
+using WebApi.DataTransferObject.Responses;
 
 namespace WebApi.Services.Abstract;
 
 public interface IAuthService
 {
     Task<bool> RegisterUser(RegisterUserRequest request);
-    Task<bool> Login();
+    Task<AuthTokenInfoResponse> Login(LoginUserRequest request);
 }
