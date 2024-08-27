@@ -1,3 +1,5 @@
+using WebApi.HelperServices.Abstract;
+using WebApi.HelperServices;
 using WebApi.Services;
 using WebApi.Services.Abstract;
 
@@ -10,7 +12,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<MailConfiguration>(builder.Configuration.GetSection("SmtpSettings"));
 
 builder.Services.AddControllers().AddNewtonsoftJson();
+
 builder.Services.AddScoped<IMailService, MailService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPassHashService, PassHashService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 var app = builder.Build();
 
