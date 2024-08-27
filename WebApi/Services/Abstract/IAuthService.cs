@@ -1,7 +1,9 @@
-﻿namespace WebApi.Services.Abstract;
+﻿using WebApi.DataTransferObject.Request;
+
+namespace WebApi.Services.Abstract;
 
 public interface IAuthService
 {
-    Task<bool> RegisterUser();
+    Task<bool> RegisterUser(RegisterUserRequest request);
     Task<bool> Login();
 }

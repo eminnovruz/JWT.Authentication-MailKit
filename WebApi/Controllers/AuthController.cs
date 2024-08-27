@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebApi.DataTransferObject.Request;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Controllers;
@@ -15,8 +16,18 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("RegisterUser")]
-    public Task<IActionResult> RegisterUser()
+    public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
     {
-
+        try
+        {
+            return Ok(await _authService.RegisterUser(request));
+        }
+        catch (Exception exception )
+        {
+            return BadRequest(exception.Message);
+        }
     }
+
+    [HttpGet("LoginUser")]
+
 }
