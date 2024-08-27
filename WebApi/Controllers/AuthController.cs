@@ -13,4 +13,10 @@ public class AuthController : ControllerBase
     {
         _authService = authService;
     }
+
+    [HttpPost("RegisterUser")]
+    public Task<IActionResult> RegisterUser()
+    {
+
+    }
 }
