@@ -2,6 +2,8 @@ using WebApi.HelperServices.Abstract;
 using WebApi.HelperServices;
 using WebApi.Services;
 using WebApi.Services.Abstract;
+using WebApi.Configuration.MongoDb;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +12,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<MailConfiguration>(builder.Configuration.GetSection("SmtpSettings"));
-
 builder.Services.AddControllers().AddNewtonsoftJson();
+
+builder.Services.Configure<MongoDbConfiguration>(builder.Configuration.GetSection("MongoDb"));
 
 builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

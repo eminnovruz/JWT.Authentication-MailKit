@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Security;
 using WebApi.DataTransferObject.Request;
 using WebApi.Services.Abstract;
 
@@ -20,7 +21,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            return Ok(await _authService.RegisterUser(request));
+            return Ok(await _authService.Register(request));
         }
         catch (Exception exception )
         {
@@ -29,5 +30,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("LoginUser")]
+    public async Task<IActionResult> LoginUser(LoginUserRequest request)
+    {
+        try
+        {
+            return Ok(await _authService.Login(request));
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
 
 }
