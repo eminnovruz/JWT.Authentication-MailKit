@@ -1,29 +1,58 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using WebApi.DataTransferObject.Request;
 using WebApi.Services.Abstract;
 
-namespace WebApi.Controllers;
-
-[Route("api/[controller]")]
-[ApiController]
-public class ApplicationController : ControllerBase
+namespace WebApi.Controllers
 {
-    private readonly IMailService _mailService;
-
-    public ApplicationController(IMailService mailService)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ApplicationController : ControllerBase
     {
-        _mailService = mailService;
-    }
+        private readonly IAuthService _authSerivce;
 
-    [HttpPost("Register")]
-    public async Task<IActionResult> RegisterAsync()
-    {
-        try
+        public ApplicationController(IAuthService authSerivce)
         {
-            return Ok(await _mailService.SendEmailAsync("softwarecrim@gmail.com", "Welcome to our service!🎉"));
+            _authSerivce = authSerivce;
         }
-        catch (Exception exception)
+
+        [HttpPost("register/user")]
+        public async Task<IActionResult> Register(RegisterUserRequest request)
         {
-            return BadRequest(exception);
+            try
+            {
+                return Ok(await _authSerivce.Register(request));
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [HttpGet("login/user")]
+        public async Task<IActionResult> Login(LoginUserRequest request)
+        {
+            try
+            {
+                return Ok(await _authSerivce.Login(request));
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [HttpPatch("enable/twofactorauth")]
+        public async Task<IActionResult> EnableTwoFactorAuth(bool flag)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
     }
 }
