@@ -4,6 +4,7 @@ using WebApi.Services;
 using WebApi.Services.Abstract;
 using WebApi.Configuration.MongoDb;
 using System.Configuration;
+using WebApi.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPassHashService, PassHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+builder.Services.AddSingleton<MongoDbContext>();
 
 var app = builder.Build();
 

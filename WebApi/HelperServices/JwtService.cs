@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -13,9 +14,9 @@ public class JwtService : IJwtService
 {
     private readonly JwtConfiguration _config;
 
-    public JwtService(JwtConfiguration config)
+    public JwtService(IOptions<JwtConfiguration> settings)
     {
-        _config = config;
+        _config = settings.Value;
     }
 
     public AuthTokenInfoResponse GenerateSecurityToken(string id, string email, string role)
