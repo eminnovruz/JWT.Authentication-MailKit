@@ -5,6 +5,10 @@ using WebApi.Services.Abstract;
 using WebApi.Configuration.MongoDb;
 using System.Configuration;
 using WebApi.Context;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using WebApi.Configuration.JWT;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +25,31 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPassHashService, PassHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+builder.Services.Configure<JwtConfiguration>(jwtSettings);
+
+var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
 
 builder.Services.AddSingleton<MongoDbContext>();
 
