@@ -19,9 +19,15 @@ public class VerificationService : IVerificationService
         _context = context;
     }
 
-    public Task<bool> RequireSetPassword()
+    public async Task<bool> RequireSetPassword(string email)
     {
-        throw new NotImplementedException();
+        var templatePath = Path.Combine(_env.WebRootPath, "send-navigatebutton.html");
+
+        var templateContent = await File.ReadAllTextAsync(templatePath);
+
+        var emailContent = templateContent.Replace("{{ActionUrl}}", "");
+
+        return await _mailService.SendEmailAsync(email, "Password Required", templateContent);
     }
 
     public async Task<bool> SendEmailVerificationCode(SendEmailVerificationCodeRequest request)

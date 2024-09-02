@@ -147,7 +147,7 @@ public class AuthService : IAuthService
 
         await userCollection.InsertOneAsync(newUser);
 
-        await _verifyService.RequireSetPassword();
+        await _verifyService.RequireSetPassword(newUser.Email);
 
         return true;
     }
