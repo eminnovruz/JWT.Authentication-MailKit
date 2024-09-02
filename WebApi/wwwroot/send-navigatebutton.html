@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: none;
+        }
+
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>Welcome!</h2>
+        <p>Please click the button below to proceed to the next step:</p>
+        <a href="{{ActionUrl}}" class="button">Proceed</a>
+        <p>If the button does not work, copy and paste the following link into your browser:</p>
+        <p><a href="{{ActionUrl}}">{{ActionUrl}}</a></p>
+    </div>
+</body>
+</html>

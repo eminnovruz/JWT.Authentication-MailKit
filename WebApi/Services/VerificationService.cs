@@ -19,6 +19,11 @@ public class VerificationService : IVerificationService
         _context = context;
     }
 
+    public Task<bool> RequireSetPassword()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> SendEmailVerificationCode(SendEmailVerificationCodeRequest request)
     {
         var verificationCode = new Random().Next(100000, 999999).ToString();

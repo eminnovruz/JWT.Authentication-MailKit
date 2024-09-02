@@ -130,13 +130,9 @@ public class AuthService : IAuthService
         if (existingUser != null)
             throw new EmailUsedException();
 
-        _passHashService.Create(request.Password, out byte[] passHash, out byte[] passSalt);
-
         var newUser = new User()
         {
             Name = request.Name,
-            PassHash = passHash,
-            PassSalt = passSalt,
             Email = request.Email,
             Id = Guid.NewGuid().ToString(),
             Role = "User",
@@ -151,7 +147,8 @@ public class AuthService : IAuthService
 
         await userCollection.InsertOneAsync(newUser);
 
+        await _verifyService.RequireSetPassword();
+
         return true;
     }
-
 }
