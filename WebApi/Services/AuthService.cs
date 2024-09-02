@@ -23,6 +23,11 @@ public class AuthService : IAuthService
         _context = context;
     }
 
+    public Task<bool> EnableTwoFactorAuth(bool flag)
+    {
+        throw new NotImplementedException();
+    }
+
     public AuthTokenInfoResponse GenerateToken(User user)
     {
         var token = _jwtService.GenerateSecurityToken(user.Id, user.Email, user.Role);
