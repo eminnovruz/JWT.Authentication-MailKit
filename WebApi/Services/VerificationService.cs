@@ -28,7 +28,7 @@ public class VerificationService : IVerificationService
 
         var emailContent = templateContent.Replace("{{VerificationCode}}", verificationCode);
 
-        await _mailService.SendEmailAsync(request.Email, emailContent);
+        await _mailService.SendEmailAsync(request.Email, "Email Verification 🔥", emailContent);
 
         var user = await _context.Users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
         if (user != null)

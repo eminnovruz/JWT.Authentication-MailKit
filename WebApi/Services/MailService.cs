@@ -17,12 +17,9 @@ public class MailService : IMailService
         _env = env;
     }
 
-    public async Task<bool> SendEmailAsync(string to, string subject)
+    public async Task<bool> SendEmailAsync(string to, string subject, string emailContent)
     {
-        var filePath = Path.Combine(_env.WebRootPath, "email-template.html");
-        var htmlContent = await File.ReadAllTextAsync(filePath);
-
-        var emailMessage = CreateEmailMessage(to, subject, htmlContent);
+        var emailMessage = CreateEmailMessage(to, subject, emailContent);
           
         using var client = new SmtpClient();
         await ConnectAndSendEmailAsync(client, emailMessage);

@@ -2,5 +2,5 @@
 
 public interface IMailService
 {
-    Task<bool> SendEmailAsync(string to, string subject);
+    Task<bool> SendEmailAsync(string to, string subject, string wwwrootFileName);
 }

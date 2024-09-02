@@ -25,6 +25,7 @@ builder.Services.AddScoped<IMailService, MailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPassHashService, PassHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IVerificationService, VerificationService>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
