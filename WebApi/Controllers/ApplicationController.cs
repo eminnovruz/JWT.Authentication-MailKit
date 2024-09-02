@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.DataTransferObject.Request;
+using WebApi.Services;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Controllers
@@ -42,12 +45,14 @@ namespace WebApi.Controllers
             }
         }
 
+        [Authorize(Roles = "User", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPatch("enable/twofactorauth")]
-        public async Task<IActionResult> EnableTwoFactorAuth(bool flag)
+        public async Task<IActionResult> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request)
         {
             try
             {
-                return Ok();
+                var result = await _authSerivce.EnableTwoFactorAuth(request);
+                return Ok(result);
             }
             catch (Exception exception)
             {
