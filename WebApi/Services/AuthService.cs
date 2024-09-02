@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using Org.BouncyCastle.Asn1.Ocsp;
 using WebApi.Context;
 using WebApi.CustomExceptions;
 using WebApi.DataTransferObject.Request;
@@ -23,10 +24,23 @@ public class AuthService : IAuthService
         _context = context;
     }
 
-    public Task<bool> EnableTwoFactorAuth(bool flag)
+    public async Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new UserNotFoundException();
+
+        user.TwoFactorAuthentication = request.Flag;
+
+        var updateResult = await _context.Users.ReplaceOneAsync(
+            u => u.Email == user.Email,
+            user
+        );
+
+        return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
     }
+
 
     public AuthTokenInfoResponse GenerateToken(User user)
     {
