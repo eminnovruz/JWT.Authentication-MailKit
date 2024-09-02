@@ -22,6 +22,7 @@ public class MailService : IMailService
         var emailMessage = CreateEmailMessage(to, subject, emailContent);
           
         using var client = new SmtpClient();
+
         await ConnectAndSendEmailAsync(client, emailMessage);
 
         return true;

@@ -25,7 +25,7 @@ public class VerificationService : IVerificationService
 
         var templateContent = await File.ReadAllTextAsync(templatePath);
 
-        var emailContent = templateContent.Replace("{{ActionUrl}}", "");
+        var emailContent = templateContent.Replace("{{ActionUrl}}", "C:\\Users\\novru\\Source\\Repos\\Authentication\\WebApi\\wwwroot\\set-password.html");
 
         return await _mailService.SendEmailAsync(email, "Password Required", templateContent);
     }
@@ -42,6 +42,7 @@ public class VerificationService : IVerificationService
         await _mailService.SendEmailAsync(request.Email, "Email Verification 🔥", emailContent);
 
         var user = await _context.Users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
+
         if (user != null)
         {
             user.VerificationCode = verificationCode;
