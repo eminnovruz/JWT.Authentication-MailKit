@@ -6,6 +6,7 @@ using WebApi.DataTransferObject.Request;
 using WebApi.DataTransferObject.Responses;
 using WebApi.HelperServices.Abstract;
 using WebApi.Models;
+using WebApi.Models.Enums;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Services;
@@ -14,14 +15,16 @@ public class AuthService : IAuthService
 {
     private readonly IPassHashService _passHashService;
     private readonly IJwtService _jwtService;
+    private readonly IVerificationService _verifyService;
 
     private readonly MongoDbContext _context;
 
-    public AuthService(IPassHashService passHashService, IJwtService jwtService, MongoDbContext context)
+    public AuthService(IPassHashService passHashService, IJwtService jwtService, MongoDbContext context, IVerificationService verifyService)
     {
         _passHashService = passHashService;
         _jwtService = jwtService;
         _context = context;
+        _verifyService = verifyService;
     }
 
     public async Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request)
@@ -76,6 +79,11 @@ public class AuthService : IAuthService
                                                     .Set(u => u.TokenExpireDate, token.ExpireDate);
 
         await userCollection.UpdateOneAsync(u => u.Id == user.Id, updateDefinition);
+
+        await _verifyService.SendEmailVerificationCode(new SendEmailVerificationCodeRequest()
+        {
+            Email = user.Email
+        });
 
         return token;
     }
@@ -136,6 +144,9 @@ public class AuthService : IAuthService
             TokenExpireDate = default,
             IsEmailConfirmed = false,
             TwoFactorAuthentication = false,
+            VerificationCode = "",
+            VerificationCodeExpire = default,
+            TwoFactor = TwoFactorAuthTypes.Email,
         };
 
         await userCollection.InsertOneAsync(newUser);
