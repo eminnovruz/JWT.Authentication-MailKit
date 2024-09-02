@@ -41,7 +41,6 @@ public class AuthService : IAuthService
         return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
     }
 
-
     public AuthTokenInfoResponse GenerateToken(User user)
     {
         var token = _jwtService.GenerateSecurityToken(user.Id, user.Email, user.Role);
@@ -135,7 +134,8 @@ public class AuthService : IAuthService
             Role = "User",
             RefreshToken = "",
             TokenExpireDate = default,
-            IsEmailConfirmed = false
+            IsEmailConfirmed = false,
+            TwoFactorAuthentication = false,
         };
 
         await userCollection.InsertOneAsync(newUser);
