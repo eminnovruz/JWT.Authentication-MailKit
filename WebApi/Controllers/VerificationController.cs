@@ -15,7 +15,7 @@ public class VerificationController : ControllerBase
         _verificationService = verificationService;
     }
 
-    [HttpGet("verifyemail")]
+    [HttpGet("VerifyEmail")]
     public async Task<IActionResult> VerifyEmail([FromQuery] string email, [FromQuery] string code)
     {
         try
