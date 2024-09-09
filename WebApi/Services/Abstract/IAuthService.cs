@@ -11,4 +11,5 @@ public interface IAuthService
     AuthTokenInfoResponse GenerateToken(User user);
     Task<AuthTokenInfoResponse> RefreshToken(RefreshTokenRequest request);
     Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest flag);
+    Task<bool> SetUserPassword(SetUserPasswordRequest request);
 }

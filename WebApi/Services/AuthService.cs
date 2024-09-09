@@ -151,4 +151,24 @@ public class AuthService : IAuthService
 
         return true;
     }
+
+    public async Task<bool> SetUserPassword(SetUserPasswordRequest request)
+    {
+        var user = await _context.Users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new UserNotFoundException();
+
+        byte[] newPassHash;
+        byte[] newPassSalt;
+        _passHashService.Create(request.Password, out newPassHash, out newPassSalt);
+
+        var updateDefinition = Builders<User>.Update
+            .Set(u => u.PassHash, newPassHash)
+            .Set(u => u.PassSalt, newPassSalt);
+
+        var updateResult = await _context.Users.UpdateOneAsync(u => u.Email == request.Email, updateDefinition);
+
+        return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
+    }
 }

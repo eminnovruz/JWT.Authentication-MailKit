@@ -55,8 +55,22 @@ public class VerificationService : IVerificationService
             .Find(u => u.Email == request.Email)
             .FirstOrDefaultAsync();
 
-        return user != null
-               && user.VerificationCode == request.Code
-               && user.VerificationCodeExpire > DateTime.UtcNow;
+        if (user != null
+            && user.VerificationCode == request.Code
+            && user.VerificationCodeExpire > DateTime.UtcNow)
+        {
+            user.IsEmailConfirmed = true;
+
+            var updateDefinition = Builders<User>.Update
+                .Set(u => u.IsEmailConfirmed, true);
+
+            var result = await _context.Users
+                .UpdateOneAsync(u => u.Email == request.Email, updateDefinition);
+
+            return result.ModifiedCount > 0;
+        }
+
+        return false;
     }
+
 }

@@ -19,7 +19,7 @@ namespace WebApi.Controllers
             _authSerivce = authSerivce;
         }
 
-        [HttpPost("register/user")]
+        [HttpPost("RegisterUser")]
         public async Task<IActionResult> Register(RegisterUserRequest request)
         {
             try
@@ -32,7 +32,7 @@ namespace WebApi.Controllers
             }
         }
 
-        [HttpGet("login/user")]
+        [HttpPost("LoginUser")]
         public async Task<IActionResult> Login(LoginUserRequest request)
         {
             try
@@ -46,12 +46,26 @@ namespace WebApi.Controllers
         }
 
         [Authorize(Roles = "User", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [HttpPatch("enable/twofactorauth")]
+        [HttpPatch("EnableTwoFactorAuth")]
         public async Task<IActionResult> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request)
         {
             try
             {
                 var result = await _authSerivce.EnableTwoFactorAuth(request);
+                return Ok(result);
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [HttpPut("SetPassword")]
+        public async Task<IActionResult> SetPassword(SetUserPasswordRequest request)
+        {
+            try
+            {
+                var result = await _authSerivce.SetUserPassword(request);
                 return Ok(result);
             }
             catch (Exception exception)
