@@ -32,4 +32,21 @@ public class UserController : ControllerBase
 			return BadRequest(exception.Message);
 		}
     }
+
+    [HttpPost("change2FA")]
+    public async Task<IActionResult> Change2FA(EnableTwoFactorAuthRequest request)
+    {
+        try
+        {
+            var result = await _userService.EnableTwoFactorAuth(request);
+
+            return Ok(result);
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpPost("")]
 }

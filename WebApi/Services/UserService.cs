@@ -22,22 +22,30 @@ public class UserService : IUserService
         _verificationService = verificationService;
     }
 
-    public Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest flag)
+    public async Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request)
     {
-        throw new NotImplementedException();
-    }
+        // Find the user by email
+        var user = await _context.Users
+            .Find(u => u.Email == request.Email)
+            .FirstOrDefaultAsync();
 
-    public AuthTokenInfoResponse GenerateToken(User user)
-    {
-        throw new NotImplementedException();
+        // If the user doesn't exist, return false
+        if (user == null)
+            return false;
+
+        // Update the user's two-factor authentication status
+        var update = Builders<User>.Update
+            .Set(u => u.TwoFactorAuthentication, true)
+            .Set(u => u.TwoFactorAuthenticationType, request.Type);
+            ;
+
+        var result = await _context.Users.UpdateOneAsync(u => u.Email == request.Email, update);
+
+        // Return true if the update was successful
+        return result.ModifiedCount > 0;
     }
 
     public Task<AuthTokenInfoResponse> Login(LoginUserRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<AuthTokenInfoResponse> RefreshToken(RefreshTokenRequest request)
     {
         throw new NotImplementedException();
     }
