@@ -15,16 +15,14 @@ public class AuthService : IAuthService
 {
     private readonly IPassHashService _passHashService;
     private readonly IJwtService _jwtService;
-    private readonly IVerificationService _verifyService;
 
     private readonly MongoDbContext _context;
 
-    public AuthService(IPassHashService passHashService, IJwtService jwtService, MongoDbContext context, IVerificationService verifyService)
+    public AuthService(IPassHashService passHashService, IJwtService jwtService, MongoDbContext context)
     {
         _passHashService = passHashService;
         _jwtService = jwtService;
         _context = context;
-        _verifyService = verifyService;
     }
 
     public async Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request)
@@ -80,11 +78,6 @@ public class AuthService : IAuthService
 
         await userCollection.UpdateOneAsync(u => u.Id == user.Id, updateDefinition);
 
-        await _verifyService.SendEmailVerificationCode(new SendEmailVerificationCodeRequest()
-        {
-            Email = user.Email
-        });
-
         return token;
     }
 
@@ -130,26 +123,22 @@ public class AuthService : IAuthService
         if (existingUser != null)
             throw new EmailUsedException();
 
-        var newUser = new User()
-        {
-            Name = request.Name,
-            Email = request.Email,
-            Id = Guid.NewGuid().ToString(),
-            Role = "User",
-            RefreshToken = "",
-            TokenExpireDate = default,
-            IsEmailConfirmed = false,
-            TwoFactorAuthentication = false,
-            VerificationCode = "",
-            VerificationCodeExpire = default,
-            TwoFactor = TwoFactorAuthTypes.Email,
-        };
+        //var newUser = new User()
+        //{
+        //    Name = request.Name,
+        //    Email = request.Email,
+        //    Id = Guid.NewGuid().ToString(),
+        //    Role = "User",
+        //    RefreshToken = "",
+        //    TokenExpireDate = default,
+        //    IsEmailConfirmed = false,
+        //    TwoFactorAuthentication = false,
+        //    VerificationCode = "",
+        //    VerificationCodeExpire = default,
+        //    TwoFactor = TwoFactorAuthTypes.Email,
+        //};
 
-        await userCollection.InsertOneAsync(newUser);
-
-        await _verifyService.RequireSetPassword(newUser.Email);
-
-        return true;
+        //await userCollection.InsertOneAsync(newUser);
     }
 
     public async Task<bool> SetUserPassword(SetUserPasswordRequest request)

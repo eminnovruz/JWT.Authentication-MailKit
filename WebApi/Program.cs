@@ -54,6 +54,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddSingleton<MongoDbContext>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policyBuilder => policyBuilder
+            .WithOrigins("http://localhost:5173") // React app URL
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -63,6 +72,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowReactApp"); // Apply CORS policy
 
 app.UseAuthorization();
 
