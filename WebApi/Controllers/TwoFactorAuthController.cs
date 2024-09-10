@@ -15,7 +15,7 @@ public class TwoFactorAuthController : ControllerBase
         _twoFactorAuthService = twoFactorAuthService;
     }
 
-    [HttpGet("qr-code")]
+    [HttpPost("qr-code")]
     public async Task<IActionResult> GenerateQrCodeAsync(GenerateQrCodeRequest request)
     {
         try
