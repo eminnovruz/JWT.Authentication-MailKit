@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using WebApi.Models.Enums;
 
 namespace WebApi.Models;
 
@@ -10,7 +9,6 @@ public class User
     public string Email { get; set; }
     public bool IsEmailConfirmed { get; set; } // ??
     public bool TwoFactorAuthentication { get; set; }
-    public TwoFactorAuthTypes TwoFactor { get; set; }
     public string VerificationCode { get; set; }
     public DateTimeOffset VerificationCodeExpire { get; set; }
     public byte[] PassHash { get; set; }

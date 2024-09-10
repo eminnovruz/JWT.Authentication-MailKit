@@ -23,7 +23,6 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPassHashService, PassHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
-builder.Services.AddScoped<ITwoFactorAuthService, TwoFactorAuthService>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 

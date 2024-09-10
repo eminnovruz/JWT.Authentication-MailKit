@@ -22,7 +22,10 @@ public class UserController : ControllerBase
 		{
             var result = await _userService.Register(request);
 
-            return Ok(result);
+            if (result is true)
+                return Ok("Check your inbox and verify email address.");
+
+            return BadRequest("Something went wrong, try again later.");
 		}
 		catch (Exception exception)
 		{
