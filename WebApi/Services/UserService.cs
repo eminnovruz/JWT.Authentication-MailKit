@@ -4,21 +4,20 @@ using WebApi.Context;
 using WebApi.CustomExceptions;
 using WebApi.DataTransferObject.Request;
 using WebApi.DataTransferObject.Responses;
-using WebApi.HelperServices.Abstract;
 using WebApi.Models;
 using WebApi.Models.Enums;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Services;
 
-public class AuthService : IAuthService
+public class UserService : IUserService
 {
     private readonly IPassHashService _passHashService;
     private readonly IJwtService _jwtService;
 
     private readonly MongoDbContext _context;
 
-    public AuthService(IPassHashService passHashService, IJwtService jwtService, MongoDbContext context)
+    public UserService(IPassHashService passHashService, IJwtService jwtService, MongoDbContext context)
     {
         _passHashService = passHashService;
         _jwtService = jwtService;
@@ -121,24 +120,12 @@ public class AuthService : IAuthService
         var existingUser = await userCollection.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
 
         if (existingUser != null)
-            throw new EmailUsedException();
+            throw new Exception("This email is used before");
 
-        //var newUser = new User()
-        //{
-        //    Name = request.Name,
-        //    Email = request.Email,
-        //    Id = Guid.NewGuid().ToString(),
-        //    Role = "User",
-        //    RefreshToken = "",
-        //    TokenExpireDate = default,
-        //    IsEmailConfirmed = false,
-        //    TwoFactorAuthentication = false,
-        //    VerificationCode = "",
-        //    VerificationCodeExpire = default,
-        //    TwoFactor = TwoFactorAuthTypes.Email,
-        //};
+        if(existingUser.TwoFactorAuthentication == true)
+        {
 
-        //await userCollection.InsertOneAsync(newUser);
+        }
     }
 
     public async Task<bool> SetUserPassword(SetUserPasswordRequest request)
@@ -146,7 +133,7 @@ public class AuthService : IAuthService
         var user = await _context.Users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
 
         if (user == null)
-            throw new UserNotFoundException();
+            throw new Exception("Cannot find user related with given email address");
 
         byte[] newPassHash;
         byte[] newPassSalt;

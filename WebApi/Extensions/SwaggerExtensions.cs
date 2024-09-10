@@ -1,10 +1,10 @@
 ﻿using Microsoft.OpenApi.Models;
 using WebApi.Configuration.JWT;
-using WebApi.HelperServices.Abstract;
-using WebApi.HelperServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebApi.Services.Abstract;
+using WebApi.Services;
 
 namespace WebApi.Extensions;
 

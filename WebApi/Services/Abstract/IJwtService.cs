@@ -1,6 +1,6 @@
 ﻿using WebApi.DataTransferObject.Responses;
 
-namespace WebApi.HelperServices.Abstract;
+namespace WebApi.Services.Abstract;
 
 public interface IJwtService
 {

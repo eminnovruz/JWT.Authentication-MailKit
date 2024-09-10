@@ -4,7 +4,7 @@ using WebApi.Models;
 
 namespace WebApi.Services.Abstract;
 
-public interface IAuthService
+public interface IUserService
 {
     Task<bool> Register(RegisterUserRequest request);
     Task<AuthTokenInfoResponse> Login(LoginUserRequest request);

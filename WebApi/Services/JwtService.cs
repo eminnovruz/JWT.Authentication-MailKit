@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 using System.Text;
 using WebApi.Configuration.JWT;
 using WebApi.DataTransferObject.Responses;
-using WebApi.HelperServices.Abstract;
+using WebApi.Services.Abstract;
 
-namespace WebApi.HelperServices;
+namespace WebApi.Services;
 
 public class JwtService : IJwtService
 {

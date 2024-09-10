@@ -1,5 +1,3 @@
-using WebApi.HelperServices.Abstract;
-using WebApi.HelperServices;
 using WebApi.Services;
 using WebApi.Services.Abstract;
 using WebApi.Configuration.MongoDb;
@@ -21,7 +19,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.Configure<MongoDbConfiguration>(builder.Configuration.GetSection("MongoDb"));
 
 builder.Services.AddScoped<IMailService, MailService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPassHashService, PassHashService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IVerificationService, VerificationService>();
