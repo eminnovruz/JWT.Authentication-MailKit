@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.DataTransferObject.Request;
+using WebApi.Models;
+using WebApi.Services;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Controllers;
@@ -8,9 +10,9 @@ namespace WebApi.Controllers;
 [ApiController]
 public class VerificationController : ControllerBase
 {
-    private readonly IVerificationService _verificationService;
+    private readonly IVerificationService  _verificationService;
 
-    public VerificationController(IVerificationService verificationService)
+    public VerificationController(IVerificationService verificationService, IJwtService jwtService)
     {
         _verificationService = verificationService;
     }
@@ -31,5 +33,23 @@ public class VerificationController : ControllerBase
 		{
 			return BadRequest(exception.Message);
 		}
+    }
+
+    [HttpPost("verifyAndGetAccessToken")]
+    public async Task<IActionResult> GetAccessToken(VerifyEmailRequest request)
+    {
+        try
+        {
+            bool result = await _verificationService.VerifyCode(request);
+
+            if (result)
+                return Ok(_verificationService.VerifyCodeAndGetToken(request));
+
+            return Unauthorized("Something went wrong.");
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 }

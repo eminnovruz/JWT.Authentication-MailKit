@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.DataTransferObject.Request;
 using WebApi.Services.Abstract;
 
@@ -34,6 +36,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("change2FA")]
+    [Authorize(Roles = "User", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Change2FA(EnableTwoFactorAuthRequest request)
     {
         try
@@ -53,6 +56,11 @@ public class UserController : ControllerBase
     {
         try
         {
+            var result = await _userService.Login(request);
+
+            if (result is null)
+                return Ok("Check your inbox to verify email address");
+
             return Ok(await _userService.Login(request));   
         }
         catch (Exception exception)

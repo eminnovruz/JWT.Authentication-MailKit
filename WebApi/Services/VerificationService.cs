@@ -1,8 +1,10 @@
-﻿using MimeKit.Cryptography;
+﻿using Microsoft.AspNetCore.Authentication.BearerToken;
+using MimeKit.Cryptography;
 using MongoDB.Driver;
 using Org.BouncyCastle.Asn1.Ocsp;
 using WebApi.Context;
 using WebApi.DataTransferObject.Request;
+using WebApi.DataTransferObject.Responses;
 using WebApi.Models;
 using WebApi.Services.Abstract;
 
@@ -13,12 +15,14 @@ public class VerificationService : IVerificationService
     private readonly IMailService _mailService;
     private readonly MongoDbContext _context;
     private readonly string _webRootPath;
+    private readonly IJwtService _jwtService;
 
-    public VerificationService(IMailService mailService, IWebHostEnvironment env, MongoDbContext context)
+    public VerificationService(IMailService mailService, IWebHostEnvironment env, MongoDbContext context, IJwtService jwtService)
     {
         _mailService = mailService;
         _context = context;
         _webRootPath = env.WebRootPath;
+        _jwtService = jwtService;
     }
 
     public async Task<bool> SendVerificationEmail(string email)
@@ -69,5 +73,25 @@ public class VerificationService : IVerificationService
 
         // Return true if the update was successful
         return result.ModifiedCount > 0;
+    }
+
+    public async Task<AuthTokenInfoResponse> VerifyCodeAndGetToken(VerifyEmailRequest request)
+    {
+        var user = await _context.Users
+            .Find(u => u.Email == request.Email)
+            .FirstOrDefaultAsync();
+
+        if (user == null || user.VerificationCode != request.Code)
+            throw new Exception("Cannot find user related with given email");
+
+        var accessTokenResponse = _jwtService.GenerateSecurityToken(user.Id.ToString(), user.Email, user.Role);
+
+        // Optionally save the refresh token to the database
+        user.RefreshToken = accessTokenResponse.RefreshToken;
+        user.TokenExpireDate = DateTime.UtcNow.AddDays(7); // Assuming 7-day refresh token validity
+        await _context.Users.ReplaceOneAsync(u => u.Email == user.Email, user);
+
+        // Return the access token, refresh token, and expiration date
+        return accessTokenResponse;
     }
 }

@@ -61,6 +61,13 @@ public class UserService : IUserService
         if (!passwordMatch)
             throw new UnauthorizedAccessException("Invalid credentials.");
 
+        if (user.TwoFactorAuthentication is true)
+        {
+            await Handle2FA(user);
+
+            return null;
+        }
+
         // Generate JWT access token using the JwtService
         var accessTokenResponse = _jwtService.GenerateSecurityToken(user.Id.ToString(), user.Email, user.Role);
 
@@ -125,4 +132,10 @@ public class UserService : IUserService
 
         await _context.Users.InsertOneAsync(newUser);
     }
+
+    private async Task Handle2FA(User user)
+    {
+        if (user.TwoFactorAuthenticationType == "gmail")
+            await _verificationService.SendVerificationEmail(user.Email);
+    } 
 }
