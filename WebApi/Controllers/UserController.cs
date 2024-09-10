@@ -48,5 +48,29 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("")]
+    [HttpPost("loginUser")]
+    public async Task<IActionResult> LoginUser(LoginUserRequest request)
+    {
+        try
+        {
+            return Ok(await _userService.Login(request));   
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpPost("setPassword")]
+    public async Task<IActionResult> SetPassword(SetUserPasswordRequest request)
+    {
+        try
+        {
+            return Ok(await _userService.SetUserPassword(request));
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
 }

@@ -45,9 +45,32 @@ public class UserService : IUserService
         return result.ModifiedCount > 0;
     }
 
-    public Task<AuthTokenInfoResponse> Login(LoginUserRequest request)
+    public async Task<AuthTokenInfoResponse> Login(LoginUserRequest request)
     {
-        throw new NotImplementedException();
+        // Find the user by email
+        var user = await _context.Users
+            .Find(u => u.Email == request.Email)
+            .FirstOrDefaultAsync();
+
+        // If the user doesn't exist, return an unauthorized response
+        if (user == null)
+            throw new UnauthorizedAccessException("Invalid credentials.");
+
+        // Verify the password using your password hashing service
+        var passwordMatch = _passHashService.ConfirmPasswordHash(request.Password, user.PassHash, user.PassSalt);
+        if (!passwordMatch)
+            throw new UnauthorizedAccessException("Invalid credentials.");
+
+        // Generate JWT access token using the JwtService
+        var accessTokenResponse = _jwtService.GenerateSecurityToken(user.Id.ToString(), user.Email, user.Role);
+
+        // Optionally save the refresh token to the database
+        user.RefreshToken = accessTokenResponse.RefreshToken;
+        user.TokenExpireDate = DateTime.UtcNow.AddDays(7); // Assuming 7-day refresh token validity
+        await _context.Users.ReplaceOneAsync(u => u.Email == user.Email, user);
+
+        // Return the access token, refresh token, and expiration date
+        return accessTokenResponse;
     }
 
     public async Task<bool> Register(RegisterUserRequest request)
@@ -64,9 +87,24 @@ public class UserService : IUserService
         return await _verificationService.SendVerificationEmail(request.Email);
     }
 
-    public Task<bool> SetUserPassword(SetUserPasswordRequest request)
+    public async Task<bool> SetUserPassword(SetUserPasswordRequest request)
     {
-        throw new NotImplementedException();
+        var user = await _context.Users.Find(u => u.Email == request.Email).FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new Exception("Cannot find user related with given email address");
+
+        byte[] newPassHash;
+        byte[] newPassSalt;
+        _passHashService.Create(request.Password, out newPassHash, out newPassSalt);
+
+        var updateDefinition = Builders<User>.Update
+            .Set(u => u.PassHash, newPassHash)
+            .Set(u => u.PassSalt, newPassSalt);
+
+        var updateResult = await _context.Users.UpdateOneAsync(u => u.Email == request.Email, updateDefinition);
+
+        return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
     }
 
     private async Task CreateUser(RegisterUserRequest request)

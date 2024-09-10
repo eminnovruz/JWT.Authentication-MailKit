@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
-using WebApi.Configuration.JWT;
+using Microsoft.IdentityModel.Tokens;
 using WebApi.DataTransferObject.Responses;
 using WebApi.Services.Abstract;
 
@@ -12,43 +9,45 @@ namespace WebApi.Services;
 
 public class JwtService : IJwtService
 {
-    private readonly JwtConfiguration _config;
+    private readonly IConfiguration _configuration;
 
-    public JwtService(IOptions<JwtConfiguration> settings)
+    public JwtService(IConfiguration configuration)
     {
-        _config = settings.Value;
+        _configuration = configuration;
     }
 
     public AuthTokenInfoResponse GenerateSecurityToken(string id, string email, string role)
     {
-        var authTokenDto = new AuthTokenInfoResponse();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Secret));
-        var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        // Retrieve key and other JWT settings from configuration
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]{
-            new Claim(ClaimsIdentity.DefaultNameClaimType, email),
-            new Claim("userId", id),
-            new Claim(ClaimTypes.Role , role)
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, id),
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim(ClaimTypes.Role, role)
+            }),
+            Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:TokenLifetime"])),
+            SigningCredentials = creds,
+            Issuer = _configuration["Jwt:Issuer"],
+            Audience = _configuration["Jwt:Audience"]
         };
 
-        var token = new JwtSecurityToken(
-            issuer: _config.Issuer,
-            audience: _config.Audience,
-            expires: DateTime.Now.AddHours(_config.ExpiresDate),
-            notBefore: DateTime.Now,
-            claims: claims,
-            signingCredentials: signingCredentials
-            );
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var accessToken = tokenHandler.WriteToken(token);
 
-        authTokenDto.AccessToken = new JwtSecurityTokenHandler().WriteToken(token);
+        // Generate refresh token (optional, you can store it securely if needed)
+        var refreshToken = Guid.NewGuid().ToString(); // For example, you can store this securely for token refresh logic
 
-        byte[] numbers = new byte[32];
-        using RandomNumberGenerator random = RandomNumberGenerator.Create();
-        random.GetBytes(numbers);
-
-        authTokenDto.RefreshToken = Convert.ToBase64String(numbers);
-        authTokenDto.ExpireDate = DateTime.Now.AddHours(_config.ExpiresDate).AddMinutes(10);
-
-        return authTokenDto;
+        return new AuthTokenInfoResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            ExpireDate = tokenDescriptor.Expires ?? DateTime.UtcNow.AddMinutes(30) // Default to 30 mins if not set
+        };
     }
 }
