@@ -24,7 +24,28 @@ public class TwoFactorAuthController : ControllerBase
 
             var qrCodeBase64 = await _twoFactorAuthService.GenerateQrCodeAsync(request.Email, secretKey);
 
-            return Ok(new { qrCodeBase64, secretKey});
+            return Ok(new { qrCodeBase64, secretKey });
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpPost("verify")]
+    public IActionResult VerifyTotpCode(VerifyTotpRequest request)
+    {
+        try
+        {
+            var secretKey = "storedSecret";
+
+            if (_twoFactorAuthService.VerifyTotpCode(secretKey, request.TotpCode))
+            {
+                return Ok("2FA verification successfull");
+            }
+
+            return Unauthorized("Invalid Totp Code");
+
         }
         catch (Exception exception)
         {

@@ -3,7 +3,6 @@ using WebApi.HelperServices;
 using WebApi.Services;
 using WebApi.Services.Abstract;
 using WebApi.Configuration.MongoDb;
-using System.Configuration;
 using WebApi.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
