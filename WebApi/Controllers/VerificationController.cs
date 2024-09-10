@@ -10,7 +10,7 @@ namespace WebApi.Controllers;
 [ApiController]
 public class VerificationController : ControllerBase
 {
-    private readonly IVerificationService  _verificationService;
+    private readonly IVerificationService _verificationService;
 
     public VerificationController(IVerificationService verificationService, IJwtService jwtService)
     {
@@ -20,8 +20,8 @@ public class VerificationController : ControllerBase
     [HttpPost("verifyEmail")]
     public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request)
     {
-		try
-		{
+        try
+        {
             bool result = await _verificationService.VerifyCode(request);
 
             if (result is true)
@@ -29,10 +29,10 @@ public class VerificationController : ControllerBase
 
             return Unauthorized("Something went wrong, try again later.");
         }
-		catch (Exception exception)
-		{
-			return BadRequest(exception.Message);
-		}
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 
     [HttpPost("verifyAndGetAccessToken")]
@@ -40,12 +40,7 @@ public class VerificationController : ControllerBase
     {
         try
         {
-            bool result = await _verificationService.VerifyCode(request);
-
-            if (result)
-                return Ok(_verificationService.VerifyCodeAndGetToken(request));
-
-            return Unauthorized("Something went wrong.");
+            return Ok(await _verificationService.VerifyCodeAndGetToken(request));
         }
         catch (Exception exception)
         {
