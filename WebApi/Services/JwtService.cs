@@ -19,10 +19,12 @@ public class JwtService : IJwtService
     public AuthTokenInfoResponse GenerateSecurityToken(string id, string email, string role)
     {
         // Retrieve key and other JWT settings from configuration
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var tokenHandler = new JwtSecurityTokenHandler();
+        var now = DateTime.UtcNow;
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[]
@@ -31,7 +33,8 @@ public class JwtService : IJwtService
                 new Claim(JwtRegisteredClaimNames.Email, email),
                 new Claim(ClaimTypes.Role, role)
             }),
-            Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:TokenLifetime"])),
+            NotBefore = now, // Token is valid from now
+            Expires = now.AddHours(Convert.ToDouble(_configuration["Jwt:ExpiresDate"])), // Token lifetime from appsettings
             SigningCredentials = creds,
             Issuer = _configuration["Jwt:Issuer"],
             Audience = _configuration["Jwt:Audience"]
@@ -40,14 +43,14 @@ public class JwtService : IJwtService
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var accessToken = tokenHandler.WriteToken(token);
 
-        // Generate refresh token (optional, you can store it securely if needed)
-        var refreshToken = Guid.NewGuid().ToString(); // For example, you can store this securely for token refresh logic
+        // Generate refresh token (optional)
+        var refreshToken = Guid.NewGuid().ToString();
 
         return new AuthTokenInfoResponse
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
-            ExpireDate = tokenDescriptor.Expires ?? DateTime.UtcNow.AddMinutes(30) // Default to 30 mins if not set
+            ExpireDate = tokenDescriptor.Expires ?? now.AddHours(12)
         };
     }
 }
