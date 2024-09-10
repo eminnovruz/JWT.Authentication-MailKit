@@ -8,8 +8,8 @@ public class User
     public string Id { get; set; }
     public string Name { get; set; }
     public string Email { get; set; }
-    public bool IsEmailConfirmed { get; set; } // ?? 
-    public bool TwoFactorAuthentication {  get; set; }
+    public bool IsEmailConfirmed { get; set; } // ??
+    public bool TwoFactorAuthentication { get; set; }
     public TwoFactorAuthTypes TwoFactor { get; set; }
     public string VerificationCode { get; set; }
     public DateTimeOffset VerificationCodeExpire { get; set; }
