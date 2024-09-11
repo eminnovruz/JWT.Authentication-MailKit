@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.DataTransferObject.Request;
 using WebApi.Services;
 using WebApi.Services.Abstract;
@@ -10,16 +11,19 @@ namespace WebApi.Controllers;
 public class QrController : ControllerBase
 {
     private readonly IQrService _qrService;
+    private readonly ISecretKeyService _secretKeyService;
 
-    public QrController(IQrService qrService)
+    public QrController(IQrService qrService, ISecretKeyService secretKeyService)
     {
         _qrService = qrService;
+        _secretKeyService = secretKeyService;
     }
 
     [HttpPost("2fa/verify")]
-    public IActionResult VerifyTotpCode(VerifyTotpRequest request)
+    public async Task<IActionResult> VerifyTotpCodeAsync(VerifyTotpRequest request)
     {
-        var secretKey = ""; // Retrieve user's secret key
+        var secretKey = await _secretKeyService.GetUserSecret(request.Email); // Retrieve user's secret key
+
         if (_qrService.VerifyTotpCode(secretKey, request.TotpCode))
         {
             // Code is valid
@@ -36,7 +40,13 @@ public class QrController : ControllerBase
     {
         try
         {
+            string secret = _qrService.GenerateSecretKey();
 
+            await _secretKeyService.SaveUserSecret(secret, email);
+
+            var result = await _qrService.GenerateQrCodeAsync(email, await _secretKeyService.GetUserSecret(email));
+
+            return Ok(new { result, secret });
         }
         catch (Exception exception)
         {
