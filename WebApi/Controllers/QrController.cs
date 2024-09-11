@@ -35,16 +35,16 @@ public class QrController : ControllerBase
     }
 
     // Endpoint to verify the QR code (you may use this for 2FA or verification purposes)
-    [HttpGet("2fa/qr-code")]
-    public async Task<IActionResult> GenerateQrCode(string email)
+    [HttpPost("2fa/qr-code")]
+    public async Task<IActionResult> GenerateQrCode(GenerateQrCodeRequest request)
     {
         try
         {
-            string secret = _qrService.GenerateSecretKey();
+            string secret = _qrService.GenerateSecretKey(); // Generating secret key
 
-            await _secretKeyService.SaveUserSecret(secret, email);
+            await _secretKeyService.SaveUserSecret(secret, request.Email); // and saving user's secret to database
 
-            var result = await _qrService.GenerateQrCodeAsync(email, await _secretKeyService.GetUserSecret(email));
+            var result = await _qrService.GenerateQrCodeAsync(request.Email, await _secretKeyService.GetUserSecret(request.Email));
 
             return Ok(new { result, secret });
         }
@@ -53,5 +53,4 @@ public class QrController : ControllerBase
             return BadRequest(exception.Message);
         }
     }
-
 }
