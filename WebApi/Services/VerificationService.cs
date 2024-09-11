@@ -41,7 +41,7 @@ public class VerificationService : IVerificationService
 
         var update = Builders<User>.Update
             .Set(u => u.VerificationCode, verificationCode)
-            .Set(u => u.VerificationCodeExpire, DateTime.UtcNow.AddMinutes(10)); // updating user credentials on database
+            .Set(u => u.VerificationCodeExpire, DateTimeOffset.Now.AddMinutes(10)); // updating user credentials on database
 
         await _context.Users.UpdateOneAsync(u => u.Email == email, update);
 

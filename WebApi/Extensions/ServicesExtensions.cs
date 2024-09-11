@@ -18,6 +18,16 @@ public static class ServicesExtensions
         // Add MongoDB context
         services.AddSingleton<MongoDbContext>();
 
+        services.AddScoped<IUserService, UserService>();
+
+        services.AddScoped<IPassHashService, PassHashService>();
+
+        services.AddScoped<IVerificationService, VerificationService>();
+
+        services.AddScoped<IJwtService, JwtService>();
+
+        services.AddScoped<IMailService, MailService>();
+
         // Add CORS policy
         services.AddCors(options =>
         {
