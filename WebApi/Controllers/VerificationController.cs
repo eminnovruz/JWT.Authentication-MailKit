@@ -17,26 +17,9 @@ public class VerificationController : ControllerBase
         _verificationService = verificationService;
     }
 
-    [HttpPost("verifyEmail")]
-    public async Task<IActionResult> VerifyEmail(VerifyEmailRequest request)
-    {
-        try
-        {
-            bool result = await _verificationService.VerifyCode(request);
-
-            if (result is true)
-                return Ok("Email confirmed successfully.");
-
-            return Unauthorized("Something went wrong, try again later.");
-        }
-        catch (Exception exception)
-        {
-            return BadRequest(exception.Message);
-        }
-    }
-
+    
     [HttpPost("verifyAndGetAccessToken")]
-    public async Task<IActionResult> GetAccessToken(VerifyEmailRequest request)
+    public async Task<IActionResult> VerifyAndGetAccessToken(VerifyEmailRequest request)
     {
         try
         {
