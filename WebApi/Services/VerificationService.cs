@@ -47,6 +47,20 @@ public class VerificationService : IVerificationService
 
         return true;
     }
+    public async Task<bool> RequirePassword(string email)
+    {
+        // getting random 6 char number for code
+        var verificationCode = new Random().Next(100000, 999999).ToString();
+
+        // getting template path from wwwroot
+        var templatePath = Path.Combine(_webRootPath, "send-navigatebutton.html");
+
+        var templateContent = await File.ReadAllTextAsync(templatePath); // reading content of template
+
+        await _mailService.SendEmailAsync(email, "Set your password.", templateContent);
+
+        return true;
+    }
 
     public async Task<AuthTokenInfoResponse> VerifyCodeAndGetToken(VerifyEmailRequest request)
     {
@@ -63,6 +77,8 @@ public class VerificationService : IVerificationService
         user.RefreshToken = accessTokenResponse.RefreshToken;
         user.TokenExpireDate = DateTime.UtcNow.AddDays(7); // Assuming 7-day refresh token validity
         await _context.Users.ReplaceOneAsync(u => u.Email == user.Email, user);
+
+        await RequirePassword(user.Email);
 
         // Return the access token, refresh token, and expiration date
         return accessTokenResponse;
