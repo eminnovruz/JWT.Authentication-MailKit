@@ -17,4 +17,5 @@ public class User
     public string Role { get; set; }
     public string RefreshToken { get; set; }
     public DateTime TokenExpireDate { get; set; }
+    public string SecretKey { get; set; }
 }
