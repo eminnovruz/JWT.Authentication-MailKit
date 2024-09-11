@@ -27,6 +27,10 @@ public static class ServicesExtensions
         services.AddScoped<IJwtService, JwtService>();
 
         services.AddScoped<IMailService, MailService>();
+        
+        services.AddScoped<IQrService, QrService>();
+
+        services.AddScoped<ISecretKeyService, SecretKeyService>();
 
         // Add CORS policy
         services.AddCors(options =>

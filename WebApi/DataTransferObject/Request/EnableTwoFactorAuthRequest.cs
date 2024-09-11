@@ -1,5 +1,4 @@
-﻿
-namespace WebApi.DataTransferObject.Request;
+﻿namespace WebApi.DataTransferObject.Request;
 
 public class EnableTwoFactorAuthRequest
 {
