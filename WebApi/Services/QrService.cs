@@ -35,10 +35,4 @@ public class QrService : IQrService
         });
     }
 
-    public bool VerifyTotpCode(string secretKey, string userInputCode)
-    {
-        var key = Base32Encoding.ToBytes(secretKey);
-        var totp = new Totp(key);
-        return totp.VerifyTotp(userInputCode, out long timeStepMatched, new VerificationWindow(2, 2));
-    }
 }

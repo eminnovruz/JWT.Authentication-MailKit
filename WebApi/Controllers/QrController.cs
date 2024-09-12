@@ -19,22 +19,7 @@ public class QrController : ControllerBase
         _secretKeyService = secretKeyService;
     }
 
-    [HttpPost("2fa/verify")]
-    public async Task<IActionResult> VerifyTotpCodeAsync(VerifyTotpRequest request)
-    {
-        var secretKey = await _secretKeyService.GetUserSecret(request.Email); // Retrieve user's secret key
-
-        if (_qrService.VerifyTotpCode(secretKey, request.TotpCode))
-        {
-            // Code is valid
-            return Ok("2FA setup successfully");
-        }
-
-        // Code is invalid
-        return Unauthorized("Invalid code");
-    }
-
-    // Endpoint to verify the QR code (you may use this for 2FA or verification purposes)
+        // Endpoint to verify the QR code (you may use this for 2FA or verification purposes)
     [HttpPost("2fa/qr-code")]
     public async Task<IActionResult> GenerateQrCode(GenerateQrCodeRequest request)
     {

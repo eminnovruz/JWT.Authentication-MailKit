@@ -30,4 +30,18 @@ public class VerificationController : ControllerBase
             return BadRequest(exception.Message);
         }
     }
+
+    [HttpPost("verifyTotpAndGetAccessToken")]
+    public async Task<IActionResult> VerifyTotpAndGetAccessToken(VerifyTotpRequest request)
+    {
+        try
+        {
+            return Ok(await _verificationService.VerifyTotpAndGetToken(request));
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+
+    }
 }

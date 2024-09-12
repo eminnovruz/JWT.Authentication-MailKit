@@ -7,4 +7,5 @@ public interface IVerificationService
 {
     Task<bool> SendVerificationEmail(string email);
     Task<AuthTokenInfoResponse> VerifyCodeAndGetToken(VerifyEmailRequest request);
+    Task<AuthTokenInfoResponse> VerifyTotpAndGetToken(VerifyTotpRequest request);
 }

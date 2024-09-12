@@ -2,6 +2,7 @@
 using MimeKit.Cryptography;
 using MongoDB.Driver;
 using Org.BouncyCastle.Asn1.Ocsp;
+using OtpNet;
 using WebApi.Context;
 using WebApi.DataTransferObject.Request;
 using WebApi.DataTransferObject.Responses;
@@ -16,13 +17,14 @@ public class VerificationService : IVerificationService
     private readonly MongoDbContext _context;
     private readonly string _webRootPath;
     private readonly IJwtService _jwtService;
-
-    public VerificationService(IMailService mailService, IWebHostEnvironment env, MongoDbContext context, IJwtService jwtService)
+    private readonly ISecretKeyService _secretService;
+    public VerificationService(IMailService mailService, IWebHostEnvironment env, MongoDbContext context, IJwtService jwtService, ISecretKeyService secretService)
     {
         _mailService = mailService;
         _context = context;
         _webRootPath = env.WebRootPath;
         _jwtService = jwtService;
+        _secretService = secretService;
     }
 
     public async Task<bool> SendVerificationEmail(string email)
@@ -82,5 +84,35 @@ public class VerificationService : IVerificationService
 
         // Return the access token, refresh token, and expiration date
         return accessTokenResponse;
+    }
+
+    public async Task<AuthTokenInfoResponse> VerifyTotpAndGetToken(VerifyTotpRequest request)
+    {
+        var user = await _context.Users.Find(user => user.Email == request.Email).FirstOrDefaultAsync();
+
+        if (user is null)
+            throw new Exception("Cannot find user related with given email");
+
+        if (VerifyTotpCode(await _secretService.GetUserSecret(request.Email), request.TotpCode))
+        {
+            var accessTokenResponse = _jwtService.GenerateSecurityToken(user.Id.ToString(), user.Email, user.Role);
+
+            // Optionally save the refresh token to the database
+            user.RefreshToken = accessTokenResponse.RefreshToken;
+            user.TokenExpireDate = DateTime.UtcNow.AddDays(7); // Assuming 7-day refresh token validity
+            await _context.Users.ReplaceOneAsync(u => u.Email == user.Email, user);
+            accessTokenResponse.TwoFactorAuthenticationType = user.TwoFactorAuthenticationType;
+
+            return accessTokenResponse;
+        }
+
+        throw new Exception("Error while verifying totp code");
+    }
+
+    private bool VerifyTotpCode(string secretKey, string userInputCode)
+    {
+        var key = Base32Encoding.ToBytes(secretKey);
+        var totp = new Totp(key);
+        return totp.VerifyTotp(userInputCode, out long timeStepMatched, new VerificationWindow(2, 2));
     }
 }
