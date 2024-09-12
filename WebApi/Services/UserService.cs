@@ -114,6 +114,19 @@ public class UserService : IUserService
         return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
     }
 
+    public async Task<User2FaSettingsInfoResponse> GetUser2FaSettings(GetUser2FaSettingsRequest request)
+    {
+        var user = await _context.Users.Find(user => user.Email == request.Email).FirstOrDefaultAsync();
+
+        if (user is null)
+            throw new Exception("Cannot find user related with given email");
+
+        return new User2FaSettingsInfoResponse()
+        {
+            TwoFactorAuthentication = user.TwoFactorAuthentication,
+            TwoFactorAuthenticationType = user.TwoFactorAuthenticationType,
+        };
+    }
 
     private async Task CreateUser(RegisterUserRequest request)
     {

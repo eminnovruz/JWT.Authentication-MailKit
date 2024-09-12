@@ -81,4 +81,17 @@ public class UserController : ControllerBase
             return BadRequest(exception.Message);
         }
     }
+
+    [HttpPost("getUser2FaSettings")]
+    public async Task<IActionResult> GetUser2FaSettings(GetUser2FaSettingsRequest request)
+    {
+        try
+        {
+            return Ok(await _userService.GetUser2FaSettings(request));
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
 }

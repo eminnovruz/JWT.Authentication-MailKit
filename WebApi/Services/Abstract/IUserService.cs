@@ -10,4 +10,5 @@ public interface IUserService
     Task<AuthTokenInfoResponse> Login(LoginUserRequest request);
     Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request);
     Task<bool> SetUserPassword(SetUserPasswordRequest request);
+    Task<User2FaSettingsInfoResponse> GetUser2FaSettings(GetUser2FaSettingsRequest reqeust);
 }
