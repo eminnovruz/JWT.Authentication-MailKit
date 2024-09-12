@@ -37,7 +37,7 @@ public class UserService : IUserService
         var update = Builders<User>.Update
             .Set(u => u.TwoFactorAuthentication, true)
             .Set(u => u.TwoFactorAuthenticationType, request.Type);
-            ;
+        ;
 
         var result = await _context.Users.UpdateOneAsync(u => u.Email == request.Email, update);
 
@@ -63,9 +63,19 @@ public class UserService : IUserService
 
         if (user.TwoFactorAuthentication is true)
         {
-            await Handle2FA(user);
+            if (user.TwoFactorAuthenticationType == "google authenticator")
+            {
+                return new AuthTokenInfoResponse()
+                {
+                    TwoFactorAuthenticationType = user.TwoFactorAuthenticationType,
+                };
+            }
+            else if (user.TwoFactorAuthenticationType == "gmail")
+            {
+                await HandleGmail2FA(user);
 
-            return null;
+                return null;
+            }
         }
 
         // Generate JWT access token using the JwtService
@@ -74,8 +84,9 @@ public class UserService : IUserService
         // Optionally save the refresh token to the database
         user.RefreshToken = accessTokenResponse.RefreshToken;
         user.TokenExpireDate = DateTime.UtcNow.AddDays(7); // Assuming 7-day refresh token validity
-        await _context.Users.ReplaceOneAsync(u => u.Email == user.Email, user);
+        accessTokenResponse.TwoFactorAuthenticationType = user.TwoFactorAuthenticationType;
 
+        await _context.Users.ReplaceOneAsync(u => u.Email == user.Email, user);
         // Return the access token, refresh token, and expiration date
         return accessTokenResponse;
     }
@@ -142,15 +153,15 @@ public class UserService : IUserService
             TwoFactorAuthentication = false,
             VerificationCode = "",
             VerificationCodeExpire = default,
+            TwoFactorAuthenticationType = ""
         };
 
         await _context.Users.InsertOneAsync(newUser);
     }
 
 
-    private async Task Handle2FA(User user)
+    private async Task HandleGmail2FA(User user)
     {
-        if (user.TwoFactorAuthenticationType == "gmail")
-            await _verificationService.SendVerificationEmail(user.Email);
-    } 
+        await _verificationService.SendVerificationEmail(user.Email);
+    }
 }

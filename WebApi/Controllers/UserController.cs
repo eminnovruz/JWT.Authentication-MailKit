@@ -56,11 +56,6 @@ public class UserController : ControllerBase
     {
         try
         {
-            var result = await _userService.Login(request);
-
-            if (result is null)
-                return Ok("Check your inbox to verify email address");
-
             return Ok(await _userService.Login(request));   
         }
         catch (Exception exception)
