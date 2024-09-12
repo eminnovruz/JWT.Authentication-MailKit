@@ -114,6 +114,7 @@ public class UserService : IUserService
         return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
     }
 
+
     private async Task CreateUser(RegisterUserRequest request)
     {
         var newUser = new User()
@@ -132,6 +133,7 @@ public class UserService : IUserService
 
         await _context.Users.InsertOneAsync(newUser);
     }
+
 
     private async Task Handle2FA(User user)
     {
