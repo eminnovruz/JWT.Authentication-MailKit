@@ -10,31 +10,33 @@ namespace WebApi.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-	private readonly IUserService _userService;
+    private readonly IUserService _userService;
 
     public UserController(IUserService userService)
     {
         _userService = userService;
     }
 
+    // Register a new user
     [HttpPost("registerUser")]
     public async Task<IActionResult> RegisterUser(RegisterUserRequest request)
     {
-		try
-		{
+        try
+        {
             var result = await _userService.Register(request);
 
             if (result is true)
                 return Ok("Check your inbox and verify email address.");
 
             return BadRequest("Something went wrong, try again later.");
-		}
-		catch (Exception exception)
-		{
-			return BadRequest(exception.Message);
-		}
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 
+    // Change user's 2FA settings
     [HttpPost("change2FA")]
     [Authorize(Roles = "User", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public async Task<IActionResult> Change2FA(EnableTwoFactorAuthRequest request)
@@ -51,12 +53,13 @@ public class UserController : ControllerBase
         }
     }
 
+    // Login user
     [HttpPost("loginUser")]
     public async Task<IActionResult> LoginUser(LoginUserRequest request)
     {
         try
         {
-            return Ok(await _userService.Login(request));   
+            return Ok(await _userService.Login(request));
         }
         catch (Exception exception)
         {
@@ -64,6 +67,7 @@ public class UserController : ControllerBase
         }
     }
 
+    // Set user password
     [HttpPost("setPassword")]
     public async Task<IActionResult> SetPassword(SetUserPasswordRequest request)
     {
@@ -77,8 +81,9 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("getUser2FaSettings")]
-    public async Task<IActionResult> GetUser2FaSettings(GetUser2FaSettingsRequest request)
+    // Get user's 2FA settings
+    [HttpGet("getUser2FaSettings")]
+    public async Task<IActionResult> GetUser2FaSettings([FromQuery] GetUser2FaSettingsRequest request)
     {
         try
         {
@@ -87,6 +92,20 @@ public class UserController : ControllerBase
         catch (Exception exception)
         {
             return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpPost("refreshToken")]
+    public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+    {
+        try
+        {
+            var newAccessToken = await _userService.RefreshTokenAsync(request.RefreshToken);
+            return Ok(new { accessToken = newAccessToken });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }

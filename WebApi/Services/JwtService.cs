@@ -16,6 +16,39 @@ public class JwtService : IJwtService
         _configuration = configuration;
     }
 
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]);
+
+        try
+        {
+            // Validate token with issuer signing key and disable lifetime validation (so it can parse expired tokens)
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false, // Ignore token expiration
+                ClockSkew = TimeSpan.Zero // Remove default 5 min buffer
+            }, out SecurityToken securityToken);
+
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
+        }
+        catch
+        {
+            // Return null if the token validation fails
+            return null;
+        }
+    }
+
     public AuthTokenInfoResponse GenerateSecurityToken(string id, string email, string role)
     {
         // Retrieve key and other JWT settings from configuration

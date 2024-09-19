@@ -1,6 +1,5 @@
 ﻿using WebApi.DataTransferObject.Request;
 using WebApi.DataTransferObject.Responses;
-using WebApi.Models;
 
 namespace WebApi.Services.Abstract;
 
@@ -11,4 +10,7 @@ public interface IUserService
     Task<bool> EnableTwoFactorAuth(EnableTwoFactorAuthRequest request);
     Task<bool> SetUserPassword(SetUserPasswordRequest request);
     Task<User2FaSettingsInfoResponse> GetUser2FaSettings(GetUser2FaSettingsRequest reqeust);
+
+    // New method to refresh access token
+    Task<string> RefreshTokenAsync(string refreshToken);
 }

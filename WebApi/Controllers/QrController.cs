@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.DataTransferObject.Request;
-using WebApi.Services;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Controllers;
@@ -19,16 +17,19 @@ public class QrController : ControllerBase
         _secretKeyService = secretKeyService;
     }
 
-        // Endpoint to verify the QR code (you may use this for 2FA or verification purposes)
+    // Endpoint to generate and save the QR code for 2FA or verification purposes
     [HttpPost("2fa/qr-code")]
     public async Task<IActionResult> GenerateQrCode(GenerateQrCodeRequest request)
     {
         try
         {
-            string secret = _qrService.GenerateSecretKey(); // Generating secret key
+            // Generate a new secret key
+            string secret = _qrService.GenerateSecretKey();
 
-            await _secretKeyService.SaveUserSecret(secret, request.Email); // and saving user's secret to database
+            // Save the user's secret to the database
+            await _secretKeyService.SaveUserSecret(secret, request.Email);
 
+            // Generate a QR code for the user based on the saved secret key
             var result = await _qrService.GenerateQrCodeAsync(request.Email, await _secretKeyService.GetUserSecret(request.Email));
 
             return Ok(new { result, secret });

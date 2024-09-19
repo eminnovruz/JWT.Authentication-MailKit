@@ -164,4 +164,40 @@ public class UserService : IUserService
     {
         await _verificationService.SendVerificationEmail(user.Email);
     }
+
+    public async Task<string> RefreshTokenAsync(string refreshToken)
+    {
+        // Step 1: Validate the refresh token
+        var principal = _jwtService.GetPrincipalFromExpiredToken(refreshToken);
+        if (principal == null)
+        {
+            throw new Exception("Invalid refresh token");
+        }
+
+        // Step 2: Retrieve the user's email from the claims
+        var email = principal.Identity?.Name;
+
+        // Step 3: Retrieve the user by email
+        var user =  await _context.Users.Find(x => x.Email == email).FirstOrDefaultAsync();
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+
+        // Step 4: Verify the refresh token against the stored refresh token (if applicable)
+        if (user.RefreshToken != refreshToken)
+        {
+            throw new Exception("Invalid refresh token");
+        }
+
+        // Step 5: Generate a new access token
+        var newAccessToken = _jwtService.GenerateSecurityToken(user.Id, user.Email, user.Role);
+
+        // Optionally, generate a new refresh token and save it to the database
+        // user.RefreshToken = _jwtService.GenerateRefreshToken();
+        // await _userRepository.UpdateAsync(user);
+
+        // Return the new access token (and optionally a new refresh token)
+        return newAccessToken.AccessToken;
+    }
 }

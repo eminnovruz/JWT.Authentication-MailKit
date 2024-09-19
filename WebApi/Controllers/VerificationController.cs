@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.DataTransferObject.Request;
-using WebApi.Models;
-using WebApi.Services;
 using WebApi.Services.Abstract;
 
 namespace WebApi.Controllers;
@@ -12,18 +10,19 @@ public class VerificationController : ControllerBase
 {
     private readonly IVerificationService _verificationService;
 
-    public VerificationController(IVerificationService verificationService, IJwtService jwtService)
+    public VerificationController(IVerificationService verificationService)
     {
         _verificationService = verificationService;
     }
 
-    
+    // Endpoint to verify an email code and get an access token
     [HttpPost("verifyAndGetAccessToken")]
     public async Task<IActionResult> VerifyAndGetAccessToken(VerifyEmailRequest request)
     {
         try
         {
-            return Ok(await _verificationService.VerifyCodeAndGetToken(request));
+            var token = await _verificationService.VerifyCodeAndGetToken(request);
+            return Ok(token);
         }
         catch (Exception exception)
         {
@@ -31,17 +30,18 @@ public class VerificationController : ControllerBase
         }
     }
 
+    // Endpoint to verify a TOTP code and get an access token
     [HttpPost("verifyTotpAndGetAccessToken")]
     public async Task<IActionResult> VerifyTotpAndGetAccessToken(VerifyTotpRequest request)
     {
         try
         {
-            return Ok(await _verificationService.VerifyTotpAndGetToken(request));
+            var token = await _verificationService.VerifyTotpAndGetToken(request);
+            return Ok(token);
         }
         catch (Exception exception)
         {
             return BadRequest(exception.Message);
         }
-
     }
 }
